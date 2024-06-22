@@ -1,34 +1,32 @@
 import clsx from "clsx"
-import { indexToFile, indexToRank } from "../utils"
+import { chess } from "../lib/chess"
+import { Square as SquareType } from "chess.js"
 
 interface IProps extends React.HTMLProps<HTMLDivElement> {
   isPossibleMove: boolean
-  isTurnColor: boolean
-  position: number
+  position: SquareType
 }
 
-export default function Square({
+export default function ChessBoardSquare({
   isPossibleMove,
-  isTurnColor,
   position,
   children,
   className,
   ...props
 }: IProps) {
-  const isSolid = (position + (Math.floor(position / 8) % 2)) % 2 !== 0
+  const isSolid = chess.squareColor(position) === "dark"
 
   return (
     <div
       className={clsx(
-        "relative aspect-square flex items-center justify-center md:p-4",
-        (isTurnColor || isPossibleMove) && "cursor-pointer hover:bg-opacity-90",
+        "relative z-10 aspect-square",
         isSolid ? "bg-lime-600" : "bg-lime-100",
         className
       )}
       {...props}
     >
-      {children && !isTurnColor && isPossibleMove ? (
-        <div className="absolute inset-0 p-3 rounded-full bg-black/10">
+      {children && isPossibleMove ? (
+        <div className="-z-10 absolute inset-0 p-3 rounded-full bg-black/10">
           <div
             className={clsx(
               "w-full h-full rounded-full",
@@ -38,27 +36,27 @@ export default function Square({
         </div>
       ) : (
         isPossibleMove && (
-          <div className="absolute w-12 h-12 rounded-full bg-black/10" />
+          <div className="-z-10 absolute inset-0 m-[25%] rounded-full bg-black/10" />
         )
       )}
-      {position % 8 === 0 && (
+      {position[0] === "a" && (
         <span
           className={clsx(
-            "absolute font-semibold left-2 top-2 opacity-80",
+            "-z-10 absolute left-2 top-2 font-semibold text-[clamp(6px,16px,2.5vw)] opacity-80",
             isSolid ? "text-lime-100" : "text-lime-600"
           )}
         >
-          {indexToRank(position)}
+          {position[1]}
         </span>
       )}
-      {position >= 56 && (
+      {position[1] === "1" && (
         <span
           className={clsx(
-            "absolute font-semibold right-2 bottom-2 opacity-80",
+            "-z-10 absolute right-2 bottom-2 font-semibold text-[clamp(6px,16px,2.5vw)] opacity-80",
             isSolid ? "text-lime-100" : "text-lime-600"
           )}
         >
-          {indexToFile(position)}
+          {position[0]}
         </span>
       )}
       {children}
